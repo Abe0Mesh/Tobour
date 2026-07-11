@@ -63,6 +63,27 @@ public class CollisionChecker {
                 }
                 break;
             
+            
         }
+    }
+
+    public int checkObject(Entity entity, boolean player) {
+        // checks if a entity is a player, and if player is hitting a object
+        int index = 999;
+
+        for (int i = 0; i < gp.obj.length; i++) {
+            if (gp.obj[i] != null) { // check if obj exist
+
+                // Get entitys solid area position
+                entity.solidArea.x = entity.worldX + entity.solidArea.x;
+                entity.solidArea.y = entity.worldY + entity.solidArea.y;
+
+
+
+                // 
+            }
+        }
+
+        return index;
     }
 }

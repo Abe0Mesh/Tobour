@@ -1,6 +1,7 @@
 package com.abe.tobour;
 
 import com.abe.tobour.entity.*;
+import com.abe.tobour.object.*;
 import com.abe.tobour.tile.*;
 
 import java.awt.Color;
@@ -35,7 +36,9 @@ public class GamePanel extends JPanel implements Runnable{
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
+    public AssetSetter aSetter = new AssetSetter(this);
     public Player player = new Player(this, keyH);
+    public SuperObject obj[] = new SuperObject[10]; // we can display as many objs that are in this list, if player picks up obj then a slot opens up
 
 
     // Set players default position
@@ -50,6 +53,12 @@ public class GamePanel extends JPanel implements Runnable{
         this.setDoubleBuffered(true); // Impoves rendering 
         this.addKeyListener(keyH);
         this.setFocusable(true); // Helps receive key inputs
+    }
+
+    public void setUpGame(){
+
+        aSetter.setObject();
+
     }
 
     public void startGameThread(){
@@ -106,8 +115,20 @@ public class GamePanel extends JPanel implements Runnable{
 
         Graphics2D g2 = (Graphics2D)g;
 
+        // TILE
         tileM.draw(g2); // Tiles need to be drawn before players or they will cover player
 
+        // OBJECTS
+        for(int i = 0; i < obj.length; i++) {
+            // We scan the object arr one by one 
+            if (obj[i] != null) {
+                // we check if the index contains a obj obj (lol)
+                obj[i].draw(g2, this);
+            }
+
+        }
+
+        // PLAYER
         player.draw(g2);
 
         g2.dispose(); // saves mem
