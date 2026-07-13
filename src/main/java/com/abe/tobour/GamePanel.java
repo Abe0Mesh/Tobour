@@ -12,6 +12,8 @@ import java.awt.Graphics2D;
 
 public class GamePanel extends JPanel implements Runnable{
     
+    private boolean debugMode = false;
+
     // screen settings
     final int originalTileSize = 16; // 16 x 16 tile (pixels), which is the standard assest size for pixel art
     final int scale = 3; // Using a scale due to 16x16 being quite small on high res monitor
@@ -26,17 +28,20 @@ public class GamePanel extends JPanel implements Runnable{
     // WORLD SETTINGS
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
-    public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldHeight = tileSize * maxWorldRow;
 
     //FPS
     int FPS = 60;
 
+    // SYSTEM
     TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler();
-    Thread gameThread;
+    Sound sound = new Sound();
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
+    public UI ui = new UI(this);
+    Thread gameThread;
+
+    // ENTITY AND OBJECT
     public Player player = new Player(this, keyH);
     public SuperObject obj[] = new SuperObject[10]; // we can display as many objs that are in this list, if player picks up obj then a slot opens up
 
@@ -58,6 +63,8 @@ public class GamePanel extends JPanel implements Runnable{
     public void setUpGame(){
 
         aSetter.setObject();
+
+//        playMusic(0); // uncomment if I want the game music to play
 
     }
 
@@ -97,7 +104,7 @@ public class GamePanel extends JPanel implements Runnable{
             }
 
             if (timer >= 1000000000) {
-                System.out.println("FPS:" + drawCount);
+                //System.out.println("FPS:" + drawCount);
                 drawCount = 0;
                 timer = 0;
             }
@@ -105,8 +112,13 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     public void update() {
-        player.update();
 
+        // DEBUG, GP owns whether debug mode is enabled
+        if (keyH.consumeDebugToggleRequest() == true) {
+            debugMode = !debugMode; // Flipping state if debug button was toggled
+        }
+
+        player.update();
     }
 
     public void paintComponent(Graphics g) {
@@ -114,6 +126,12 @@ public class GamePanel extends JPanel implements Runnable{
         super.paintComponent(g); 
 
         Graphics2D g2 = (Graphics2D)g;
+
+        // DEBUG
+        long drawStart = 0; // TODOWhy are we using a long here?
+        if (debugMode == true) {
+            drawStart = System.nanoTime(); // Tracking time to analyze rendering performance/ how long it tkaes to draw
+        }
 
         // TILE
         tileM.draw(g2); // Tiles need to be drawn before players or they will cover player
@@ -129,9 +147,38 @@ public class GamePanel extends JPanel implements Runnable{
         }
 
         // PLAYER
-        player.draw(g2);
+        player.draw(g2, debugMode);
+
+        // UI
+        ui.draw(g2);
+
+        // DEBUG
+        if(debugMode == true) {
+            long drawEnd = System.nanoTime();
+            long passed = drawEnd - drawStart;
+            g2.setColor(Color.white);
+            g2.drawString("Draw Time: " + passed, 10, 400);
+            System.out.println("Draw time: " + passed);
+        }
+
 
         g2.dispose(); // saves mem
 
     }
+
+    public void playMusic(int i) {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void stopMusic() {
+
+        sound.stop();
+    }
+    public void playSE(int i) {
+
+        sound.setFile(i);
+        sound.play();
+    }
+
 }

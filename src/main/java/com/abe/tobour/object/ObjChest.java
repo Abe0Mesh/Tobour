@@ -4,13 +4,19 @@ import java.io.*;
 
 import javax.imageio.*;
 
-public class ObjChest extends SuperObject {
-    
-    public ObjChest(){
+import com.abe.tobour.*;
 
-        name = "chest";
+public class ObjChest extends SuperObject {
+    GamePanel gp;
+    public ObjChest(GamePanel gp){
+        
+        this.gp = gp;
+
+        name = "Chest";
         try {
             image = ImageIO.read(getClass().getResourceAsStream("/objects/chest.png"));
+            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+
 
         }catch(IOException e){
             e.printStackTrace();

@@ -16,6 +16,8 @@ public class Player extends Entity{
     // Player position set in the center of screen
     public final int screenX;
     public final int screenY;
+    public int hasKey = 0;
+    int standCounter = 0;
 
     public Player(GamePanel gp, KeyHandler keyH){
         this.gp = gp;
@@ -42,22 +44,29 @@ public class Player extends Entity{
     }
 
     public void getPlayerImage(){
-        
-        try{ // I only made 4 sprites no sprinting spirtes so reusing for 1 and 2's
-            up1 = ImageIO.read(getClass().getResourceAsStream("/player/up1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/player/up2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/player/down1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/player/down2.png"));
-            left1 = ImageIO.read(getClass().getResourceAsStream("/player/left1.png"));
-            left2 = ImageIO.read(getClass().getResourceAsStream("/player/left2.png"));
-            right1 = ImageIO.read(getClass().getResourceAsStream("/player/right1.png"));
-            right2 = ImageIO.read(getClass().getResourceAsStream("/player/right2.png"));
 
+        up1 = setup("up1");
+        up2 = setup("up2");
+        down1 = setup("down1");
+        down2 = setup("down2");
+        left1 = setup("left1");
+        left2 = setup("left2");
+        right1 = setup("right1");
+        right2 = setup("right2");
+    }
 
-        }
-        catch(IOException e){
+    public BufferedImage setup(String imageName) {
+        UtilityTool uTool = new UtilityTool();
+        BufferedImage image = null;
+
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
+            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+
+        }catch (IOException e) {
             e.printStackTrace();
         }
+        return image;
     }
 
     public void update(){
@@ -82,6 +91,10 @@ public class Player extends Entity{
             collisionOn = false;
             gp.cChecker.checkTile(this);
             
+            //  CHECK OBJ COLLISION
+            int objIndex = gp.cChecker.checkObject(this, true); // this returns the index of the obj that was collided with
+            pickUpObject(objIndex); // this uses the index to add logic to object interaction/collision
+
             // If collision is false, player can move
             if (collisionOn == false) {
                 switch(direction){
@@ -102,12 +115,59 @@ public class Player extends Entity{
                 spriteCounter = 0;
             }
         }
+        else {
+            // sets player back to normal if they arnt moving
+            standCounter++;
+            if(standCounter == 30) {
+                spriteNum = 1;
+                standCounter = 0;
+            }
+        }
 
 
 
     }
 
-    public void draw(Graphics2D g2){
+    public void pickUpObject(int index) {
+
+        if(index != 999) { // index 999 means no obj touched
+            String objectName = gp.obj[index].name;
+
+            switch(objectName) {
+                case "Key":
+                    gp.playSE(1);
+                    hasKey++;
+                    gp.obj[index] = null;
+                    gp.ui.showMessage("You got a key!");
+                    break;
+                case "Door":
+                    if(hasKey > 0) {
+                        gp.playSE(3);
+                        gp.obj[index] = null;
+                        hasKey--;
+                        gp.ui.showMessage("You opened the door!");
+                    }
+                    else {
+                        gp.ui.showMessage("You need a key");
+                    }
+
+                    break;
+                case "Boots":
+                    gp.playSE(2);
+                    speed += 1;
+                    gp.obj[index] = null;
+                    gp.ui.showMessage("SPEED BOOST!");
+                    break;
+                case "Chest":
+                    gp.ui.gameFinished = true;
+                    gp.stopMusic();
+                    gp.playSE(4);
+                    break;
+            }
+        }
+    }
+
+    public void draw(Graphics2D g2, Boolean debugMode){
         // g2.setColor(Color.white);
 
         // g2.fillRect(x, y, gp.tileSize, gp.tileSize);
@@ -132,6 +192,13 @@ public class Player extends Entity{
                 if (spriteNum == 2) image = right2;
                 break;
         }
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, null);
+
+        // DEBUG, highlight player hitbox
+        if(debugMode) {
+            g2.setColor(Color.red);
+            g2.drawRect(screenX + solidArea.x, screenY + solidArea.y, solidArea.width, solidArea.height);
+        }
+
     }
 }

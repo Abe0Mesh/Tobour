@@ -7,6 +7,16 @@ public class KeyHandler implements KeyListener{
 
     public boolean upPressed, downPressed, leftPressed, rightPressed;
 
+    private boolean debugToggleRequested = false; // debug mode is 'p' button ATP
+
+    // Key Hanlder only detects the debug button was toggled
+    public boolean consumeDebugToggleRequest() {
+        // Check button state, reset it then return its state
+            boolean request = debugToggleRequested;
+            debugToggleRequested = false;
+            return request;
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
@@ -29,6 +39,12 @@ public class KeyHandler implements KeyListener{
 
         if (code == KeyEvent.VK_D){
             rightPressed = true;
+        }
+
+        // DEBUG
+        if(code == KeyEvent.VK_P) {
+            // setting debug button state
+            debugToggleRequested = true;
         }
 
     }
