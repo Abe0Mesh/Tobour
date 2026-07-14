@@ -4,23 +4,21 @@ import com.abe.tobour.*;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.io.*;
 
-import javax.imageio.*;
 
 public class Player extends Entity{
     
-    GamePanel gp;
     KeyHandler keyH;
 
     // Player position set in the center of screen
     public final int screenX;
     public final int screenY;
-    public int hasKey = 0;
     int standCounter = 0;
 
     public Player(GamePanel gp, KeyHandler keyH){
-        this.gp = gp;
+
+        super(gp);
+        
         this.keyH = keyH;
 
         //Center of the screen (where player is)
@@ -45,29 +43,17 @@ public class Player extends Entity{
 
     public void getPlayerImage(){
 
-        up1 = setup("up1");
-        up2 = setup("up2");
-        down1 = setup("down1");
-        down2 = setup("down2");
-        left1 = setup("left1");
-        left2 = setup("left2");
-        right1 = setup("right1");
-        right2 = setup("right2");
+        up1 = setup("/player/up1");
+        up2 = setup("/player/up2");
+        down1 = setup("/player/down1");
+        down2 = setup("/player/down2");
+        left1 = setup("/player/left1");
+        left2 = setup("/player/left2");
+        right1 = setup("/player/right1");
+        right2 = setup("/player/right2");
     }
 
-    public BufferedImage setup(String imageName) {
-        UtilityTool uTool = new UtilityTool();
-        BufferedImage image = null;
 
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-        return image;
-    }
 
     public void update(){
 
@@ -94,6 +80,10 @@ public class Player extends Entity{
             //  CHECK OBJ COLLISION
             int objIndex = gp.cChecker.checkObject(this, true); // this returns the index of the obj that was collided with
             pickUpObject(objIndex); // this uses the index to add logic to object interaction/collision
+
+            // CHECK NPC COLLISION
+            int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+            interactNPC(npcIndex);
 
             // If collision is false, player can move
             if (collisionOn == false) {
@@ -131,39 +121,14 @@ public class Player extends Entity{
     public void pickUpObject(int index) {
 
         if(index != 999) { // index 999 means no obj touched
-            String objectName = gp.obj[index].name;
+            
+            
+        }
+    }
 
-            switch(objectName) {
-                case "Key":
-                    gp.playSE(1);
-                    hasKey++;
-                    gp.obj[index] = null;
-                    gp.ui.showMessage("You got a key!");
-                    break;
-                case "Door":
-                    if(hasKey > 0) {
-                        gp.playSE(3);
-                        gp.obj[index] = null;
-                        hasKey--;
-                        gp.ui.showMessage("You opened the door!");
-                    }
-                    else {
-                        gp.ui.showMessage("You need a key");
-                    }
-
-                    break;
-                case "Boots":
-                    gp.playSE(2);
-                    speed += 1;
-                    gp.obj[index] = null;
-                    gp.ui.showMessage("SPEED BOOST!");
-                    break;
-                case "Chest":
-                    gp.ui.gameFinished = true;
-                    gp.stopMusic();
-                    gp.playSE(4);
-                    break;
-            }
+    public void interactNPC(int i) {
+        if (i != 999) {
+            System.out.println(" u are hitting a npcs");
         }
     }
 

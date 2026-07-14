@@ -1,5 +1,6 @@
 package com.abe.tobour;
 
+import com.abe.tobour.entity.*;
 import com.abe.tobour.object.*;
 
 public class AssetSetter {
@@ -12,37 +13,14 @@ public class AssetSetter {
     public void setObject() {
         // so here we add the obj to the list of objects then we set the cords of where it will be on the map (e.g = new ObjKey() this sets that elemt to a key)
         // we do a int * tileSize where the number is the 'block' that it will be on and tileSize is the actual size of the tile giving us the cord as the product
-        gp.obj[0] = new ObjKey(gp);
-        gp.obj[0].worldX = 23 * gp.tileSize;
-        gp.obj[0].worldY = 7 * gp.tileSize;
 
-        gp.obj[1] = new ObjKey(gp);
-        gp.obj[1].worldX = 23 * gp.tileSize;
-        gp.obj[1].worldY = 40 * gp.tileSize;
+        
+    }
 
-        gp.obj[2] = new ObjKey(gp);
-        gp.obj[2].worldX = 38 * gp.tileSize;
-        gp.obj[2].worldY = 8 * gp.tileSize;
+    public void setNPC() {
 
-        gp.obj[3] = new ObjDoor(gp);
-        gp.obj[3].worldX = 10 * gp.tileSize;
-        gp.obj[3].worldY = 11 * gp.tileSize;
-
-        gp.obj[4] = new ObjDoor(gp);
-        gp.obj[4].worldX = 8 * gp.tileSize;
-        gp.obj[4].worldY = 28 * gp.tileSize;
-
-        gp.obj[5] = new ObjDoor(gp);
-        gp.obj[5].worldX = 12 * gp.tileSize;
-        gp.obj[5].worldY = 22 * gp.tileSize;
-
-        gp.obj[6] = new ObjChest(gp);
-        gp.obj[6].worldX = 10 * gp.tileSize;
-        gp.obj[6].worldY = 7 * gp.tileSize;
-
-        gp.obj[7] = new ObjBoots(gp);
-        gp.obj[7].worldX = 37 * gp.tileSize;
-        gp.obj[7].worldY = 42 * gp.tileSize;
-
+        gp.npc[0] = new NPC_OldMan(gp);
+        gp.npc[0].worldX = gp.tileSize * 21;
+        gp.npc[0].worldY = gp.tileSize * 21;
     }
 }

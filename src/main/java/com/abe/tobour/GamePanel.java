@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     // SYSTEM
     TileManager tileM = new TileManager(this);
-    KeyHandler keyH = new KeyHandler();
+    KeyHandler keyH = new KeyHandler(this);
     Sound sound = new Sound();
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
@@ -44,7 +44,12 @@ public class GamePanel extends JPanel implements Runnable{
     // ENTITY AND OBJECT
     public Player player = new Player(this, keyH);
     public SuperObject obj[] = new SuperObject[10]; // we can display as many objs that are in this list, if player picks up obj then a slot opens up
+    public Entity npc[] = new Entity[10];
 
+    // GAME STATE
+    public int gameState;
+    public final int playState = 1;
+    public final int pauseState = 2;
 
     // Set players default position
     int playerX = 100;
@@ -63,8 +68,12 @@ public class GamePanel extends JPanel implements Runnable{
     public void setUpGame(){
 
         aSetter.setObject();
+        aSetter.setNPC();
 
-//        playMusic(0); // uncomment if I want the game music to play
+        playMusic(0); // uncomment if I want the game music to play
+        stopMusic();
+
+        gameState = playState;
 
     }
 
@@ -118,7 +127,21 @@ public class GamePanel extends JPanel implements Runnable{
             debugMode = !debugMode; // Flipping state if debug button was toggled
         }
 
-        player.update();
+        if(gameState == playState) {
+            player.update();
+            // NPC
+            for (int i = 0; i < npc.length; i++) {
+                if (npc[i] != null) {
+                    npc[i].update();
+                }
+            }
+        }
+        if(gameState == pauseState) {
+
+        }
+
+
+
     }
 
     public void paintComponent(Graphics g) {
@@ -146,8 +169,17 @@ public class GamePanel extends JPanel implements Runnable{
 
         }
 
+        // NPC
+        for(int i = 0; i < npc.length; i++) {
+            if(npc[i] != null) {
+                npc[i].draw(g2);
+            }
+        }
+
         // PLAYER
         player.draw(g2, debugMode);
+
+        
 
         // UI
         ui.draw(g2);
