@@ -5,22 +5,23 @@ import java.io.*;
 import javax.imageio.*;
 
 import com.abe.tobour.*;
+import com.abe.tobour.entity.*;
 
-public class ObjDoor extends SuperObject{
-    GamePanel gp;
+public class ObjDoor extends Entity{
+
     public ObjDoor(GamePanel gp){
 
-        this.gp = gp;
-        
+        super(gp);
         name = "Door";
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/door.png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-
-
-        }catch(IOException e){
-            e.printStackTrace();
-        }
+        down1 = setup("/objects/door", gp.tileSize, gp.tileSize);
         collision = true;
+
+        solidArea.x = 0;
+        solidArea.y = 16;
+        solidArea.width = 48;
+        solidArea.height = 32;
+        solidAreaDefaultX = solidArea.x;
+        solidAreaDefaultY = solidArea.y;
+
     }
 }

@@ -82,50 +82,19 @@ public class CollisionChecker {
 
 
                 switch(entity.direction) {
-                    case "up":
-                        entity.solidArea.y -= entity.speed;
-                        if (entity.solidArea.intersects(gp.obj[i].solidArea)) { // if entity is touching the object 
-                            if(gp.obj[i].collision == true) { // this protect itmes from getting picked up from mobs/non palyer
-                                entity.collisionOn = true;
-                            }
-                            if(player == true) {
-                                index = i;
-                            }
-                        }
-                        break;
-                    case "down":
-                        entity.solidArea.y += entity.speed;
-                        if (entity.solidArea.intersects(gp.obj[i].solidArea)) { // if entity is touching the object 
-                            if(gp.obj[i].collision == true) { // this protect itmes from getting picked up from mobs/non palyer
-                                entity.collisionOn = true;
-                            }
-                            if(player == true) {
-                                index = i;
-                            }
-                        }
-                        break;
-                    case "left":
-                        entity.solidArea.x -= entity.speed;
-                        if (entity.solidArea.intersects(gp.obj[i].solidArea)) { // if entity is touching the object 
-                            if(gp.obj[i].collision == true) { // this protect itmes from getting picked up from mobs/non palyer
-                                entity.collisionOn = true;
-                            }
-                            if(player == true) {
-                                index = i;
-                            }
-                        }
-                        break;
-                    case "right":
-                        entity.solidArea.x += entity.speed;
-                        if (entity.solidArea.intersects(gp.obj[i].solidArea)) { // if entity is touching the object 
-                            if(gp.obj[i].collision == true) { // this protect itmes from getting picked up from mobs/non palyer
-                                entity.collisionOn = true;
-                            }
-                            if(player == true) {
-                                index = i;
-                            }
-                        }
-                        break; // in the video he has the break in the if statment
+                    case "up": entity.solidArea.y -= entity.speed; break;
+                    case "down": entity.solidArea.y += entity.speed; break;
+                    case "left": entity.solidArea.x -= entity.speed; break;
+                    case "right": entity.solidArea.x += entity.speed; break; // in the video he has the break in the if statment
+                }
+
+                if (entity.solidArea.intersects(gp.obj[i].solidArea)) { // if entity is touching the object 
+                    if(gp.obj[i].collision == true) { // this protect itmes from getting picked up from mobs/non palyer
+                        entity.collisionOn = true;
+                    }
+                    if(player == true) {
+                        index = i;
+                    }
                 }
                 // Converting hitboxes back to sprite relative 
                 entity.solidArea.x = entity.solidAreaDefaultX;
@@ -161,47 +130,25 @@ public class CollisionChecker {
                 target[i].solidArea.y = target[i].worldY + target[i].solidArea.y;
 
 
-                switch(entity.direction) {
-                    case "up":
-                        entity.solidArea.y -= entity.speed;
-                        if (entity.solidArea.intersects(target[i].solidArea)) { 
-                            entity.collisionOn = true;
-                            index = i;
-                        }
-                        break;
-                    case "down":
-                        entity.solidArea.y += entity.speed;
-                        if (entity.solidArea.intersects(target[i].solidArea)) { // if entity is touching the object 
-                             // this protect itmes from getting picked up from mobs/non palyer
-                            entity.collisionOn = true;
-                            index = i;
-                        }
-                        break;
-                    case "left":
-                        entity.solidArea.x -= entity.speed;
-                        if (entity.solidArea.intersects(target[i].solidArea)) { // if entity is touching the object 
-                            entity.collisionOn = true;
-                            index = i;
-                        }
-                        break;
-                    case "right":
-                        entity.solidArea.x += entity.speed;
-                        if (entity.solidArea.intersects(target[i].solidArea)) { // if entity is touching the object 
-                            entity.collisionOn = true;
-                            index = i;
-                        }
-                        break; // in the video he has the break in the if statment
+                switch(entity.direction) {  
+                    case "up": entity.solidArea.y -= entity.speed; break;
+                    case "down":entity.solidArea.y += entity.speed; break;
+                    case "left": entity.solidArea.x -= entity.speed; break;
+                    case "right": entity.solidArea.x += entity.speed; break;
                 }
+
+                if (entity.solidArea.intersects(target[i].solidArea)) { 
+                    if (target[i] != entity) {
+                        entity.collisionOn = true;
+                        index = i;
+                    }
+                }
+
                 // Converting hitboxes back to sprite relative 
                 entity.solidArea.x = entity.solidAreaDefaultX;
                 entity.solidArea.y = entity.solidAreaDefaultY;
                 target[i].solidArea.x = target[i].solidAreaDefaultX;
                 target[i].solidArea.y = target[i].solidAreaDefaultY;
-
-
-
-
-
                 
             }
         }
@@ -211,7 +158,9 @@ public class CollisionChecker {
 
 
 
-    public void checkPlayer (Entity entity) {
+    public boolean checkPlayer (Entity entity) {
+
+        boolean contactPlayer = false;
 
         // Temporarily convert entity & object hitbox from sprite relative to world relative coords
         entity.solidArea.x = entity.worldX + entity.solidArea.x;
@@ -221,37 +170,23 @@ public class CollisionChecker {
 
 
         switch(entity.direction) {
-            case "up":
-                entity.solidArea.y -= entity.speed;
-                if (entity.solidArea.intersects(gp.player.solidArea)) { 
-                    entity.collisionOn = true;
-                }
-                break;
-            case "down":
-                entity.solidArea.y += entity.speed;
-                if (entity.solidArea.intersects(gp.player.solidArea)) { // if entity is touching the object 
-                        // this protect itmes from getting picked up from mobs/non palyer
-                    entity.collisionOn = true;
-                }
-                break;
-            case "left":
-                entity.solidArea.x -= entity.speed;
-                if (entity.solidArea.intersects(gp.player.solidArea)) { // if entity is touching the object 
-                    entity.collisionOn = true;
-                }
-                break;
-            case "right":
-                entity.solidArea.x += entity.speed;
-                if (entity.solidArea.intersects(gp.player.solidArea)) { // if entity is touching the object 
-                    entity.collisionOn = true;
-                }
-                break; // in the video he has the break in the if statment
+            case "up": entity.solidArea.y -= entity.speed; break;
+            case "down": entity.solidArea.y += entity.speed; break;
+            case "left": entity.solidArea.x -= entity.speed; break;
+            case "right": entity.solidArea.x += entity.speed; break; 
         }
+
+        if (entity.solidArea.intersects(gp.player.solidArea)) { 
+            entity.collisionOn = true;
+            contactPlayer = true;
+        }
+
         // Converting hitboxes back to sprite relative 
         entity.solidArea.x = entity.solidAreaDefaultX;
         entity.solidArea.y = entity.solidAreaDefaultY;
         gp.player.solidArea.x = gp.player.solidAreaDefaultX;
         gp.player.solidArea.y = gp.player.solidAreaDefaultY;
 
+        return contactPlayer;
     }
 }

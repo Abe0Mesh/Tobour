@@ -12,19 +12,41 @@ import com.abe.tobour.*;
 public class Entity {
 
     GamePanel gp;
-    
-    public int worldX, worldY; 
-    public int speed;
 
     public BufferedImage up1, up2, down1,down2, left1, left2, right1, right2;
-    public String direction;
+    public BufferedImage attackUp1, attackUp2, attackDown1, attackDown2, attackLeft1, attackLeft2, attackRight1, attackRight2;
 
-    public int spriteCounter = 0;
-    public int spriteNum = 1;
     public Rectangle solidArea = new Rectangle(0,0,48,48);
+    public Rectangle attackArea = new Rectangle(0,0,0,0); // atack area will be dynamic so default 0's
     public int solidAreaDefaultX, solidAreaDefaultY; 
+    String dialogues[] = new String[20];
+    int dialogueIndex = 0;
+    public BufferedImage image, image2, image3;
+
+    // State
+    public int worldX, worldY; 
+    public boolean collision = false;
     public boolean collisionOn = false;
+    public String direction = "down";
+    public boolean invincible = false;
+    public int spriteNum = 1;
+    boolean attacking = false;  
+
+    // COUNTER
     public int actionLockCounter = 0;
+    public int invincibleCounter = 0;
+    public int spriteCounter = 0;
+
+
+
+
+    // CHARACTER STATUS
+    public String name;
+    public int type; // 0 = player, 1 = npc, 2 = monster
+    public int maxLife;
+    public int life;
+    public int speed;
+
 
     public Entity(GamePanel gp) {
         this.gp = gp;
@@ -38,7 +60,17 @@ public class Entity {
         collisionOn = false;
         gp.cChecker.checkTile(this);
         gp.cChecker.checkObject(this, false);
-        gp.cChecker.checkPlayer(this);
+        gp.cChecker.checkEntity(this, gp.npc);
+        gp.cChecker.checkEntity(this, gp.monster);
+        boolean contactPlayer = gp.cChecker.checkPlayer(this);
+
+        if (this.type == 2 & contactPlayer == true) {
+            // If this is a monster and it contacts a player
+            if (gp.player.invincible == false) {
+                gp.player.life -=1;
+                gp.player.invincible = true;
+            }
+        }
 
         // If collision is false, player can move
         if (collisionOn == false) {
@@ -58,6 +90,14 @@ public class Entity {
                 spriteNum = 1;
             }
             spriteCounter = 0;
+        }
+
+        if (invincible == true) {
+            invincibleCounter ++;
+            if (invincibleCounter > 40) {
+                invincible = false;
+                invincibleCounter = 0;
+            }
         }
     
 
@@ -95,23 +135,54 @@ public class Entity {
                     if (spriteNum == 2) image = right2;
                     break;
             }
+
+            if (invincible == true) {
+                // transparent during damage cooldown
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+            }
+
             g2.drawImage(image, screenX, screenY, null);
+
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+
 
         }
     }
 
-    public BufferedImage setup(String imagePath) {
+    public BufferedImage setup(String imagePath, int width, int height) {
         UtilityTool uTool = new UtilityTool();
         BufferedImage image = null;
 
         try {
             image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+            image = uTool.scaleImage(image, width, height);
 
         }catch (IOException e) {
             e.printStackTrace();
         }
         return image;
+    }
+
+    public void speak() {
+        gp.ui.currentDialogue = dialogues[dialogueIndex];
+        dialogueIndex++; 
+        if (dialogues[dialogueIndex] == null) dialogueIndex = 0;
+
+        switch(gp.player.direction) {
+            case "up":
+                direction = "down";
+                break;
+            case "down":
+                direction = "up";
+                break;
+            case "left":
+                direction = "right";
+                break;
+            case "right":
+                direction = "left";
+                break;
+        }
+
     }
 
 

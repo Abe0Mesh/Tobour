@@ -5,21 +5,16 @@ import java.io.*;
 import javax.imageio.*;
 
 import com.abe.tobour.*;
+import com.abe.tobour.entity.*;
 
-public class ObjChest extends SuperObject {
-    GamePanel gp;
+public class ObjChest extends Entity {
+
     public ObjChest(GamePanel gp){
-        
-        this.gp = gp;
 
+        super(gp);
         name = "Chest";
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/chest.png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+        down1 = setup("/objects/chest", gp.tileSize, gp.tileSize);
 
 
-        }catch(IOException e){
-            e.printStackTrace();
-        }
     }
 }

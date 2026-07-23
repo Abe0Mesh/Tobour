@@ -5,22 +5,21 @@ import java.io.*;
 import javax.imageio.*;
 
 import com.abe.tobour.*;
+import com.abe.tobour.entity.*;
 
-public class ObjKey extends SuperObject{
-    GamePanel gp;
+public class ObjKey extends Entity{
+
     public ObjKey(GamePanel gp){
 
-        this.gp = gp;
+        super(gp);
+
 
         name = "Key";
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/objects/key.png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+        down1 = setup("/objects/key", gp.tileSize, gp.tileSize);
 
 
-        }catch(IOException e){
-            e.printStackTrace();
-        }
+
+
 
     }
 }

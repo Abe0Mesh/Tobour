@@ -1,7 +1,6 @@
 package com.abe.tobour;
 
 import com.abe.tobour.entity.*;
-import com.abe.tobour.object.*;
 import com.abe.tobour.tile.*;
 
 import java.awt.Color;
@@ -9,10 +8,11 @@ import java.awt.Dimension;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.*;
 
 public class GamePanel extends JPanel implements Runnable{
     
-    private boolean debugMode = false;
+    public boolean debugMode = false;
 
     // screen settings
     final int originalTileSize = 16; // 16 x 16 tile (pixels), which is the standard assest size for pixel art
@@ -34,22 +34,27 @@ public class GamePanel extends JPanel implements Runnable{
 
     // SYSTEM
     TileManager tileM = new TileManager(this);
-    KeyHandler keyH = new KeyHandler(this);
+    public KeyHandler keyH = new KeyHandler(this);
     Sound sound = new Sound();
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
+    public EventHandler eHandler = new EventHandler(this);
     Thread gameThread;
 
     // ENTITY AND OBJECT
     public Player player = new Player(this, keyH);
-    public SuperObject obj[] = new SuperObject[10]; // we can display as many objs that are in this list, if player picks up obj then a slot opens up
+    public Entity obj[] = new Entity[10]; // we can display as many objs that are in this list, if player picks up obj then a slot opens up
     public Entity npc[] = new Entity[10];
+    public Entity monster[] = new Entity[20];
+    ArrayList<Entity> entityList = new ArrayList();
 
     // GAME STATE
     public int gameState;
+    public final int titleState = 0;
     public final int playState = 1;
     public final int pauseState = 2;
+    public final int dialogueState = 3;
 
     // Set players default position
     int playerX = 100;
@@ -69,11 +74,9 @@ public class GamePanel extends JPanel implements Runnable{
 
         aSetter.setObject();
         aSetter.setNPC();
+        aSetter.setMonster();
 
-        playMusic(0); // uncomment if I want the game music to play
-        stopMusic();
-
-        gameState = playState;
+        gameState = titleState;
 
     }
 
@@ -135,6 +138,11 @@ public class GamePanel extends JPanel implements Runnable{
                     npc[i].update();
                 }
             }
+            for (int i = 0; i < monster.length; i++) {
+                if (monster[i] != null) {
+                    monster[i].update();
+                }
+            }
         }
         if(gameState == pauseState) {
 
@@ -156,46 +164,71 @@ public class GamePanel extends JPanel implements Runnable{
             drawStart = System.nanoTime(); // Tracking time to analyze rendering performance/ how long it tkaes to draw
         }
 
-        // TILE
-        tileM.draw(g2); // Tiles need to be drawn before players or they will cover player
-
-        // OBJECTS
-        for(int i = 0; i < obj.length; i++) {
-            // We scan the object arr one by one 
-            if (obj[i] != null) {
-                // we check if the index contains a obj obj (lol)
-                obj[i].draw(g2, this);
-            }
+        if (gameState == titleState) { 
+            ui.draw(g2);
 
         }
+        else { 
 
-        // NPC
-        for(int i = 0; i < npc.length; i++) {
-            if(npc[i] != null) {
-                npc[i].draw(g2);
+            // TILE
+            tileM.draw(g2); // Tiles need to be drawn before players or they will cover player
+
+            entityList.add(player);
+            
+            // ADD ENTITES TO THE LIST
+            for(int i = 0; i < npc.length; i++) {
+                if (npc[i] != null) {
+                    entityList.add(npc[i]);
+                }
             }
+
+            for (int i = 0; i < obj.length; i++) {
+                if(obj[i] != null) {
+                    entityList.add(obj[i]);
+                }
+            }
+
+
+            for (int i = 0; i < monster.length; i++) {
+                if(monster[i] != null) {
+                    entityList.add(monster[i]);
+                }
+            }
+
+            // SORT
+            Collections.sort(entityList, new Comparator<Entity>() {
+
+                @Override
+                public int compare(Entity e1, Entity e2) {
+
+                    int result = Integer.compare(e1.worldY, e2.worldY);
+                    return result;
+                }
+            });
+
+            // DRAW ENTITEIS
+            for(int i = 0; i < entityList.size(); i++) {
+                entityList.get(i).draw(g2);
+            }
+            // EMPTY ENTITY LIST
+            entityList.clear();
+
+            // UI
+            ui.draw(g2);
         }
 
-        // PLAYER
-        player.draw(g2, debugMode);
+            // DEBUG
+            if(debugMode == true) {
+                long drawEnd = System.nanoTime();
+                long passed = drawEnd - drawStart;
+                g2.setColor(Color.white);
+                g2.drawString("Draw Time: " + passed, 10, 400);
+                System.out.println("Draw time: " + passed);
+            }
 
+
+            g2.dispose(); // saves mem
         
-
-        // UI
-        ui.draw(g2);
-
-        // DEBUG
-        if(debugMode == true) {
-            long drawEnd = System.nanoTime();
-            long passed = drawEnd - drawStart;
-            g2.setColor(Color.white);
-            g2.drawString("Draw Time: " + passed, 10, 400);
-            System.out.println("Draw time: " + passed);
-        }
-
-
-        g2.dispose(); // saves mem
-
     }
 
     public void playMusic(int i) {
