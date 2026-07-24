@@ -225,6 +225,7 @@ public class Player extends Entity{
     
             }
             else {
+                gp.playSE(7);
                 attacking = true;
                 
             }
@@ -236,6 +237,7 @@ public class Player extends Entity{
         if (i != 999) {
 
             if (invincible == false) {
+                gp.playSE(6);
                 life -= 1;
                 invincible = true;
             }
@@ -247,17 +249,20 @@ public class Player extends Entity{
 
             if (gp.monster[i].invincible == false) {
 
-                gp.monster[i].life -= 1;
+                gp.playSE(5);
+                gp.monster[i].life -= 1;    
                 gp.monster[i].invincible = true;
+                gp.monster[i].damageReaction();
 
                 if (gp.monster[i].life <= 0) {
-                    gp.monster[i] = null; // monster dies so we just drop it from the list
+                    gp.monster[i].dying = true;
                 }
             }
         }
  
     }
 
+    @Override
     public void draw(Graphics2D g2){
         // g2.setColor(Color.white);
 

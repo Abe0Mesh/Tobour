@@ -61,6 +61,12 @@ public class MON_GreenSlime extends Entity{
             actionLockCounter = 0;
         }
     }
+    @Override
+    public void damageReaction() {
+        // todo possibly check if monster is colloding with a tile so it can quickly go another way
+        actionLockCounter = 0;
+        direction = gp.player.direction;
+    }
 
 
 
